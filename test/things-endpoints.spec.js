@@ -2,14 +2,10 @@ const knex = require('knex')
 const app = require('../src/app')
 const helpers = require('./test-helpers')
 
-describe('Things Endpoints', function() {
+describe('things Endpoints', function() {
   let db
 
-  const {
-    testUsers,
-    testThings,
-    testReviews,
-  } = helpers.makeThingsFixtures()
+  const { testUsers, testthings, testComments, } = helpers.makeThingsFixtures()
 
   before('make knex instance', () => {
     db = knex({
@@ -39,22 +35,22 @@ describe('Things Endpoints', function() {
         helpers.seedThingsTables(
           db,
           testUsers,
-          testThings,
-          testReviews,
+          testthings,
+          testComments,
         )
       )
 
       it('responds with 200 and all of the things', () => {
-        const expectedThings = testThings.map(thing =>
-          helpers.makeExpectedThing(
+        const expectedthings = testthings.map(thing =>
+          helpers.makeExpectedthing(
             testUsers,
             thing,
-            testReviews,
+            testComments,
           )
         )
         return supertest(app)
           .get('/api/things')
-          .expect(200, expectedThings)
+          .expect(200, expectedthings)
       })
     })
 
@@ -62,7 +58,7 @@ describe('Things Endpoints', function() {
       const testUser = helpers.makeUsersArray()[1]
       const {
         maliciousThing,
-        expectedThing,
+        expectedthing,
       } = helpers.makeMaliciousThing(testUser)
 
       beforeEach('insert malicious thing', () => {
@@ -78,8 +74,8 @@ describe('Things Endpoints', function() {
           .get(`/api/things`)
           .expect(200)
           .expect(res => {
-            expect(res.body[0].title).to.eql(expectedThing.title)
-            expect(res.body[0].content).to.eql(expectedThing.content)
+            expect(res.body[0].title).to.eql(expectedthing.title)
+            expect(res.body[0].content).to.eql(expectedthing.content)
           })
       })
     })
@@ -87,34 +83,40 @@ describe('Things Endpoints', function() {
 
   describe(`GET /api/things/:thing_id`, () => {
     context(`Given no things`, () => {
+      beforeEach(() =>
+        helpers.seedUsers(db, testUsers)
+      )
+
       it(`responds with 404`, () => {
         const thingId = 123456
         return supertest(app)
           .get(`/api/things/${thingId}`)
-          .expect(404, { error: `Thing doesn't exist` })
+          .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
+          .expect(404, { error: `thing doesn't exist` })
       })
     })
 
     context('Given there are things in the database', () => {
       beforeEach('insert things', () =>
-        helpers.seedThingsTables(
+        helpers.seedthingsTables(
           db,
           testUsers,
-          testThings,
-          testReviews,
+          testthings,
+          testComments,
         )
       )
 
       it('responds with 200 and the specified thing', () => {
         const thingId = 2
-        const expectedThing = helpers.makeExpectedThing(
+        const expectedthing = helpers.makeExpectedthing(
           testUsers,
-          testThings[thingId - 1],
-          testReviews,
+          testthings[thingId - 1],
+          testComments,
         )
 
         return supertest(app)
           .get(`/api/things/${thingId}`)
+          .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
           .expect(200, expectedThing)
       })
     })
@@ -123,7 +125,7 @@ describe('Things Endpoints', function() {
       const testUser = helpers.makeUsersArray()[1]
       const {
         maliciousThing,
-        expectedThing,
+        expectedthing,
       } = helpers.makeMaliciousThing(testUser)
 
       beforeEach('insert malicious thing', () => {
@@ -136,45 +138,52 @@ describe('Things Endpoints', function() {
 
       it('removes XSS attack content', () => {
         return supertest(app)
-          .get(`/api/things/${maliciousThing.id}`)
+          .get(`/api/things/${maliciousthing.id}`)
+          .set('Authorization', helpers.makeAuthHeader(testUser))
           .expect(200)
           .expect(res => {
-            expect(res.body.title).to.eql(expectedThing.title)
-            expect(res.body.content).to.eql(expectedThing.content)
+            expect(res.body.title).to.eql(expectedthing.title)
+            expect(res.body.content).to.eql(expectedthing.content)
           })
       })
     })
   })
 
-  describe(`GET /api/things/:thing_id/reviews`, () => {
+  describe(`GET /api/things/:thing_id/comments`, () => {
     context(`Given no things`, () => {
+      beforeEach(() =>
+        helpers.seedUsers(db, testUsers)
+      )
+
       it(`responds with 404`, () => {
         const thingId = 123456
         return supertest(app)
-          .get(`/api/things/${thingId}/reviews`)
-          .expect(404, { error: `Thing doesn't exist` })
+          .get(`/api/things/${thingId}/comments`)
+          .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
+          .expect(404, { error: `thing doesn't exist` })
       })
     })
 
-    context('Given there are reviews for thing in the database', () => {
+    context('Given there are comments for thing in the database', () => {
       beforeEach('insert things', () =>
         helpers.seedThingsTables(
           db,
           testUsers,
-          testThings,
-          testReviews,
+          testthings,
+          testComments,
         )
       )
 
-      it('responds with 200 and the specified reviews', () => {
+      it('responds with 200 and the specified comments', () => {
         const thingId = 1
-        const expectedReviews = helpers.makeExpectedThingReviews(
-          testUsers, thingId, testReviews
+        const expectedComments = helpers.makeExpectedthingComments(
+          testUsers, thingId, testComments
         )
 
         return supertest(app)
-          .get(`/api/things/${thingId}/reviews`)
-          .expect(200, expectedReviews)
+          .get(`/api/things/${thingId}/comments`)
+          .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
+          .expect(200, expectedComments)
       })
     })
   })

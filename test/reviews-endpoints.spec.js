@@ -2,13 +2,10 @@ const knex = require('knex')
 const app = require('../src/app')
 const helpers = require('./test-helpers')
 
-describe('Reviews Endpoints', function() {
+describe('reviews Endpoints', function() {
   let db
 
-  const {
-    testThings,
-    testUsers,
-  } = helpers.makeThingsFixtures()
+  const { testThings, testUsers, } = helpers.makeThingsFixtures()
 
   before('make knex instance', () => {
     db = knex({
@@ -25,7 +22,7 @@ describe('Reviews Endpoints', function() {
   afterEach('cleanup', () => helpers.cleanTables(db))
 
   describe(`POST /api/reviews`, () => {
-    beforeEach('insert things', () =>
+    beforeEach('insert Things', () =>
       helpers.seedThingsTables(
         db,
         testUsers,
@@ -35,65 +32,61 @@ describe('Reviews Endpoints', function() {
 
     it(`creates an review, responding with 201 and the new review`, function() {
       this.retries(3)
-      const testThing = testThings[0]
+      const testArticle = testThings[0]
       const testUser = testUsers[0]
-      const newReview = {
+      const newreview = {
         text: 'Test new review',
-        rating: 3,
-        thing_id: testThing.id,
-        user_id: testUser.id,
+        article_id: testArticle.id,
       }
       return supertest(app)
         .post('/api/reviews')
-        .send(newReview)
+        .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
+        .send(newreview)
         .expect(201)
         .expect(res => {
           expect(res.body).to.have.property('id')
-          expect(res.body.rating).to.eql(newReview.rating)
-          expect(res.body.text).to.eql(newReview.text)
-          expect(res.body.thing_id).to.eql(newReview.thing_id)
+          expect(res.body.text).to.eql(newreview.text)
+          expect(res.body.article_id).to.eql(newreview.article_id)
           expect(res.body.user.id).to.eql(testUser.id)
           expect(res.headers.location).to.eql(`/api/reviews/${res.body.id}`)
-          const expectedDate = new Date().toLocaleString()
+          const expectedDate = new Date().toLocaleString('en', { timeZone: 'UTC' })
           const actualDate = new Date(res.body.date_created).toLocaleString()
           expect(actualDate).to.eql(expectedDate)
         })
         .expect(res =>
           db
-            .from('thingful_reviews')
+            .from('thing_reviews')
             .select('*')
             .where({ id: res.body.id })
             .first()
             .then(row => {
-              expect(row.text).to.eql(newReview.text)
-              expect(row.rating).to.eql(newReview.rating)
-              expect(row.thing_id).to.eql(newReview.thing_id)
-              expect(row.user_id).to.eql(newReview.user_id)
-              const expectedDate = new Date().toLocaleString()
+              expect(row.text).to.eql(newreview.text)
+              expect(row.article_id).to.eql(newreview.article_id)
+              expect(row.user_id).to.eql(testUser.id)
+              const expectedDate = new Date().toLocaleString('en', { timeZone: 'UTC' })
               const actualDate = new Date(row.date_created).toLocaleString()
               expect(actualDate).to.eql(expectedDate)
             })
         )
     })
 
-    const requiredFields = ['text', 'rating', 'user_id', 'thing_id']
+    const requiredFields = ['text', 'article_id']
 
     requiredFields.forEach(field => {
-      const testThing = testThings[0]
+      const testArticle = testThings[0]
       const testUser = testUsers[0]
-      const newReview = {
+      const newreview = {
         text: 'Test new review',
-        rating: 3,
-        user_id: testUser.id,
-        thing_id: testThing.id,
+        article_id: testArticle.id,
       }
 
       it(`responds with 400 and an error message when the '${field}' is missing`, () => {
-        delete newReview[field]
+        delete newreview[field]
 
         return supertest(app)
           .post('/api/reviews')
-          .send(newReview)
+          .set('Authorization', helpers.makeAuthHeader(testUser))
+          .send(newreview)
           .expect(400, {
             error: `Missing '${field}' in request body`,
           })

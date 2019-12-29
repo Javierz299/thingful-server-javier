@@ -1,3 +1,6 @@
+const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
+
 function makeUsersArray() {
   return [
     {
@@ -6,7 +9,7 @@ function makeUsersArray() {
       full_name: 'Test user 1',
       nickname: 'TU1',
       password: 'password',
-      date_created: '2029-01-22T16:28:32.615Z',
+      date_created: new Date('2029-01-22T16:28:32.615Z'),
     },
     {
       id: 2,
@@ -14,7 +17,7 @@ function makeUsersArray() {
       full_name: 'Test user 2',
       nickname: 'TU2',
       password: 'password',
-      date_created: '2029-01-22T16:28:32.615Z',
+      date_created: new Date('2029-01-22T16:28:32.615Z'),
     },
     {
       id: 3,
@@ -22,7 +25,7 @@ function makeUsersArray() {
       full_name: 'Test user 3',
       nickname: 'TU3',
       password: 'password',
-      date_created: '2029-01-22T16:28:32.615Z',
+      date_created: new Date('2029-01-22T16:28:32.615Z'),
     },
     {
       id: 4,
@@ -30,176 +33,149 @@ function makeUsersArray() {
       full_name: 'Test user 4',
       nickname: 'TU4',
       password: 'password',
-      date_created: '2029-01-22T16:28:32.615Z',
+      date_created: new Date('2029-01-22T16:28:32.615Z'),
     },
   ]
 }
-
 function makeThingsArray(users) {
   return [
     {
       id: 1,
-      title: 'First test thing!',
-      image: 'http://placehold.it/500x500',
-      user_id: users[0].id,
-      date_created: '2029-01-22T16:28:32.615Z',
+      title: 'First test post!',
+      style: 'How-to',
+      author_id: users[0].id,
+      date_created: new Date('2029-01-22T16:28:32.615Z'),
       content: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus consequuntur deserunt commodi, nobis qui inventore corrupti iusto aliquid debitis unde non.Adipisci, pariatur.Molestiae, libero esse hic adipisci autem neque ?',
     },
     {
       id: 2,
-      title: 'Second test thing!',
-      image: 'http://placehold.it/500x500',
-      user_id: users[1].id,
-      date_created: '2029-01-22T16:28:32.615Z',
+      title: 'Second test post!',
+      style: 'Interview',
+      author_id: users[1].id,
+      date_created: new Date('2029-01-22T16:28:32.615Z'),
       content: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus consequuntur deserunt commodi, nobis qui inventore corrupti iusto aliquid debitis unde non.Adipisci, pariatur.Molestiae, libero esse hic adipisci autem neque ?',
     },
     {
       id: 3,
-      title: 'Third test thing!',
-      image: 'http://placehold.it/500x500',
-      user_id: users[2].id,
-      date_created: '2029-01-22T16:28:32.615Z',
+      title: 'Third test post!',
+      style: 'News',
+      author_id: users[2].id,
+      date_created: new Date('2029-01-22T16:28:32.615Z'),
       content: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus consequuntur deserunt commodi, nobis qui inventore corrupti iusto aliquid debitis unde non.Adipisci, pariatur.Molestiae, libero esse hic adipisci autem neque ?',
     },
     {
       id: 4,
-      title: 'Fourth test thing!',
-      image: 'http://placehold.it/500x500',
-      user_id: users[3].id,
-      date_created: '2029-01-22T16:28:32.615Z',
+      title: 'Fourth test post!',
+      style: 'Listicle',
+      author_id: users[3].id,
+      date_created: new Date('2029-01-22T16:28:32.615Z'),
       content: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus consequuntur deserunt commodi, nobis qui inventore corrupti iusto aliquid debitis unde non.Adipisci, pariatur.Molestiae, libero esse hic adipisci autem neque ?',
     },
   ]
 }
-
-function makeReviewsArray(users, things) {
+function makereviewsArray(users, Things) {
   return [
     {
       id: 1,
-      rating: 2,
-      text: 'First test review!',
-      thing_id: things[0].id,
+      text: 'First test comment!',
+      Thing_id: Things[0].id,
       user_id: users[0].id,
-      date_created: '2029-01-22T16:28:32.615Z',
+      date_created: new Date('2029-01-22T16:28:32.615Z'),
     },
     {
       id: 2,
-      rating: 3,
-      text: 'Second test review!',
-      thing_id: things[0].id,
+      text: 'Second test comment!',
+      Thing_id: Things[0].id,
       user_id: users[1].id,
-      date_created: '2029-01-22T16:28:32.615Z',
+      date_created: new Date('2029-01-22T16:28:32.615Z'),
     },
     {
       id: 3,
-      rating: 1,
-      text: 'Third test review!',
-      thing_id: things[0].id,
+      text: 'Third test comment!',
+      Thing_id: Things[0].id,
       user_id: users[2].id,
-      date_created: '2029-01-22T16:28:32.615Z',
+      date_created: new Date('2029-01-22T16:28:32.615Z'),
     },
     {
       id: 4,
-      rating: 5,
-      text: 'Fourth test review!',
-      thing_id: things[0].id,
+      text: 'Fourth test comment!',
+      Thing_id: Things[0].id,
       user_id: users[3].id,
-      date_created: '2029-01-22T16:28:32.615Z',
+      date_created: new Date('2029-01-22T16:28:32.615Z'),
     },
     {
       id: 5,
-      rating: 1,
-      text: 'Fifth test review!',
-      thing_id: things[things.length - 1].id,
+      text: 'Fifth test comment!',
+      Thing_id: Things[Things.length - 1].id,
       user_id: users[0].id,
-      date_created: '2029-01-22T16:28:32.615Z',
+      date_created: new Date('2029-01-22T16:28:32.615Z'),
     },
     {
       id: 6,
-      rating: 2,
-      text: 'Sixth test review!',
-      thing_id: things[things.length - 1].id,
+      text: 'Sixth test comment!',
+      Thing_id: Things[Things.length - 1].id,
       user_id: users[2].id,
-      date_created: '2029-01-22T16:28:32.615Z',
+      date_created: new Date('2029-01-22T16:28:32.615Z'),
     },
     {
       id: 7,
-      rating: 5,
-      text: 'Seventh test review!',
-      thing_id: things[3].id,
+      text: 'Seventh test comment!',
+      Thing_id: Things[3].id,
       user_id: users[0].id,
-      date_created: '2029-01-22T16:28:32.615Z',
+      date_created: new Date('2029-01-22T16:28:32.615Z'),
     },
   ];
 }
-
-function makeExpectedThing(users, thing, reviews=[]) {
-  const user = users
-    .find(user => user.id === thing.user_id)
-
-  const thingReviews = reviews
-    .filter(review => review.thing_id === thing.id)
-
-  const number_of_reviews = thingReviews.length
-  const average_review_rating = calculateAverageReviewRating(thingReviews)
-
+function makeExpectedThing(users, Thing, reviews=[]) {
+  const author = users
+    .find(user => user.id === Thing.author_id)
+  const number_of_reviews = reviews
+    .filter(comment => comment.Thing_id === Thing.id)
+    .length
   return {
-    id: thing.id,
-    image: thing.image,
-    title: thing.title,
-    content: thing.content,
-    date_created: thing.date_created,
+    id: Thing.id,
+    style: Thing.style,
+    title: Thing.title,
+    content: Thing.content,
+    date_created: Thing.date_created.toISOString(),
     number_of_reviews,
-    average_review_rating,
-    user: {
-      id: user.id,
-      user_name: user.user_name,
-      full_name: user.full_name,
-      nickname: user.nickname,
-      date_created: user.date_created,
+    author: {
+      id: author.id,
+      user_name: author.user_name,
+      full_name: author.full_name,
+      nickname: author.nickname,
+      date_created: author.date_created.toISOString(),
+      date_modified: author.date_modified || null,
     },
   }
 }
-
-function calculateAverageReviewRating(reviews) {
-  if(!reviews.length) return 0
-
-  const sum = reviews
-    .map(review => review.rating)
-    .reduce((a, b) => a b)
-
-  return Math.round(sum / reviews.length)
-}
-
-function makeExpectedThingReviews(users, thingId, reviews) {
-  const expectedReviews = reviews
-    .filter(review => review.thing_id === thingId)
-
-  return expectedReviews.map(review => {
-    const reviewUser = users.find(user => user.id === review.user_id)
+function makeExpectedThingreviews(users, ThingId, reviews) {
+  const expectedreviews = reviews
+    .filter(comment => comment.Thing_id === ThingId)
+  return expectedreviews.map(comment => {
+    const commentUser = users.find(user => user.id === comment.user_id)
     return {
-      id: review.id,
-      text: review.text,
-      rating: review.rating,
-      date_created: review.date_created,
+      id: comment.id,
+      text: comment.text,
+      date_created: comment.date_created.toISOString(),
       user: {
-        id: reviewUser.id,
-        user_name: reviewUser.user_name,
-        full_name: reviewUser.full_name,
-        nickname: reviewUser.nickname,
-        date_created: reviewUser.date_created,
+        id: commentUser.id,
+        user_name: commentUser.user_name,
+        full_name: commentUser.full_name,
+        nickname: commentUser.nickname,
+        date_created: commentUser.date_created.toISOString(),
+        date_modified: commentUser.date_modified || null,
       }
     }
   })
 }
-
 function makeMaliciousThing(user) {
   const maliciousThing = {
     id: 911,
-    image: 'http://placehold.it/500x500',
-    date_created: new Date().toISOString(),
+    style: 'How-to',
+    date_created: new Date(),
     title: 'Naughty naughty very naughty <script>alert("xss");</script>',
-    user_id: user.id,
+    author_id: user.id,
     content: `Bad image <img src="https://url.to.file.which/does-not.exist" onerror="alert(document.cookie);">. But not <strong>all</strong> bad.`,
   }
   const expectedThing = {
@@ -212,46 +188,73 @@ function makeMaliciousThing(user) {
     expectedThing,
   }
 }
-
 function makeThingsFixtures() {
   const testUsers = makeUsersArray()
   const testThings = makeThingsArray(testUsers)
-  const testReviews = makeReviewsArray(testUsers, testThings)
-  return { testUsers, testThings, testReviews }
+  const testreviews = makereviewsArray(testUsers, testThings)
+  return { testUsers, testThings, testreviews }
 }
-
 function cleanTables(db) {
-  return db.raw(
-    `TRUNCATE
-      thingful_things,
-      thingful_users,
-      thingful_reviews
-      RESTART IDENTITY CASCADE`
+  return db.transaction(trx =>
+    trx.raw(
+      `TRUNCATE
+        thingful_reviews,
+        thingful_users,
+        thingful_things
+      `
+    )
+    .then(() =>
+      Promise.all([
+        trx.raw(`ALTER SEQUENCE thingful_Things_id_seq minvalue 0 START WITH 1`),
+        trx.raw(`ALTER SEQUENCE thingful_users_id_seq minvalue 0 START WITH 1`),
+        trx.raw(`ALTER SEQUENCE thingful_reviews_id_seq minvalue 0 START WITH 1`),
+        trx.raw(`SELECT setval('thingful_Things_id_seq', 0)`),
+        trx.raw(`SELECT setval('thingful_users_id_seq', 0)`),
+        trx.raw(`SELECT setval('thingful_reviews_id_seq', 0)`),
+      ])
+    )
   )
 }
-
-function seedThingsTables(db, users, things, reviews=[]) {
-  return db
-    .into('thingful_users')
-    .insert(users)
+function seedUsers(db, users) {
+  const preppedUsers = users.map(user => ({
+    ...user,
+    password: bcrypt.hashSync(user.password, 1)
+  }))
+  return db.into('thingful_users').insert(preppedUsers)
     .then(() =>
-      db
-        .into('thingful_things')
-        .insert(things)
-    )
-    .then(() =>
-      reviews.length && db.into('thingful_reviews').insert(reviews)
+      // update the auto sequence to stay in sync
+      db.raw(
+        `SELECT setval('thingful_users_id_seq', ?)`,
+        [users[users.length - 1].id],
+      )
     )
 }
-
-function seedMaliciousThing(db, user, thing) {
-  return db
-    .into('thingful_users')
-    .insert([user])
+function seedThingsTables(db, users, Things, reviews=[]) {
+  // use a transaction to group the queries and auto rollback on any failure
+  return db.transaction(async trx => {
+    await seedUsers(trx, users)
+    await trx.into('thingful_Things').insert(Things)
+    // update the auto sequence to match the forced id values
+    await trx.raw(
+      `SELECT setval('thingful_Things_id_seq', ?)`,
+      [Things[Things.length - 1].id],
+    )
+    // only insert reviews if there are some, also update the sequence counter
+    if (reviews.length) {
+      await trx.into('thingful_reviews').insert(reviews)
+      await trx.raw(
+        `SELECT setval('thingful_reviews_id_seq', ?)`,
+        [reviews[reviews.length - 1].id],
+      )
+    }
+  })
+}
+function seedMaliciousThing(db, user, Thing) {
+  return seedUsers(db, [user])
     .then(() =>
       db
-        .into('thingful_things')
-        .insert([thing])
+        .into('thingful_test')
+        .insert([Thing])
     )
 }
 
@@ -261,19 +264,19 @@ function makeAuthHeader(user, secret = process.env.JWT_SECRET) {
     algorithm: 'HS256',
   })
   return `Bearer ${token}`
-  }
+}
 
 module.exports = {
   makeUsersArray,
   makeThingsArray,
   makeExpectedThing,
-  makeExpectedThingReviews,
+  makeExpectedThingreviews,
   makeMaliciousThing,
-  makeReviewsArray,
-
+  makereviewsArray,
   makeThingsFixtures,
   cleanTables,
   seedThingsTables,
   seedMaliciousThing,
   makeAuthHeader,
+  seedUsers,
 }
